@@ -413,6 +413,39 @@ function uninstallWg() {
 	fi
 }
 
+function listClients(){
+	echo "Select the existing client you want to revoke"
+	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | cut -d ' ' -f 3 | nl -s ') '
+}
+
+function generateQRCode(){
+	NUMBER_OF_CLIENTS=$(grep -c -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf")
+	if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
+		echo ""
+		echo "You have no existing clients!"
+		exit 1
+	fi
+
+	echo ""
+	echo "Select the existing client you want to generate QR code for"
+	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | cut -d ' ' -f 3 | nl -s ') '
+	until [[ ${CLIENT_NUMBER} -ge 1 && ${CLIENT_NUMBER} -le ${NUMBER_OF_CLIENTS} ]]; do
+		if [[ ${CLIENT_NUMBER} == '1' ]]; then
+			read -rp "Select one client [1]: " CLIENT_NUMBER
+		else
+			read -rp "Select one client [1-${NUMBER_OF_CLIENTS}]: " CLIENT_NUMBER
+		fi
+	done
+	# match the selected number to a client name
+	CLIENT_NAME=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | cut -d ' ' -f 3 | sed -n "${CLIENT_NUMBER}"p)
+	# generate the QR Code for the selected user
+	echo -e "\nHere is your client config file as a QR Code:"
+
+	qrencode -t UTF8 < /root/wg0-client-${CLIENT_NAME}.conf
+
+	echo "It is also available in /root/wg0-client-${CLIENT_NAME}.conf"
+}
+
 function manageMenu() {
 	echo "Welcome to WireGuard-install!"
 	echo "The git repository is available at: https://github.com/angristan/wireguard-install"
@@ -422,10 +455,12 @@ function manageMenu() {
 	echo "What do you want to do?"
 	echo "   1) Add a new user"
 	echo "   2) Revoke existing user"
-	echo "   3) Uninstall WireGuard"
-	echo "   4) Exit"
-	until [[ ${MENU_OPTION} =~ ^[1-4]$ ]]; do
-		read -rp "Select an option [1-4]: " MENU_OPTION
+	echo "   3) List existing users"
+	echo "   4) Generate QR code for existing users"
+	echo "   5) Uninstall WireGuard"
+	echo "   6) Exit"
+	until [[ ${MENU_OPTION} =~ ^[1-6]$ ]]; do
+		read -rp "Select an option [1-6]: " MENU_OPTION
 	done
 	case "${MENU_OPTION}" in
 	1)
@@ -435,9 +470,15 @@ function manageMenu() {
 		revokeClient
 		;;
 	3)
-		uninstallWg
+		listClients
 		;;
 	4)
+		generateQRCode
+		;;
+	5)
+		uninstallWg
+		;;
+	6)
 		exit 0
 		;;
 	esac
