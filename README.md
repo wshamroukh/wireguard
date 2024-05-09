@@ -1,8 +1,5 @@
 # WireGuard installer
 
-![Lint](https://github.com/angristan/wireguard-install/workflows/Lint/badge.svg)
-![visitors](https://visitor-badge.glitch.me/badge?page_id=angristan.wireguard-install)
-
 **This project is a bash script that aims to setup a [WireGuard](https://www.wireguard.com/) VPN on a Linux server, as easily as possible! This script is a slightly modified version of the one from [angristan](https://github.com/angristan/wireguard-install) where I have added the functionality to list VPN users and generate their QR codes.**
 
 WireGuard is a point-to-point VPN that can be used in different ways. Here, we mean a VPN as in: the client will forward all its traffic trough an encrypted tunnel to the server.
@@ -16,12 +13,15 @@ WireGuard does not fit your environment? Check out [openvpn-install](https://git
 
 Supported distributions:
 
-- Ubuntu >= 16.04
-- Debian >= 10
-- Fedora
-- CentOS
+- AlmaLinux >= 8
 - Arch Linux
-
+- CentOS Stream >= 8
+- Debian >= 10
+- Fedora >= 32
+- Oracle Linux
+- Rocky Linux >= 8
+- Ubuntu >= 18.04
+  
 ## Usage
 
 Download and execute the script. Answer the questions asked by the script and it will take care of the rest.
